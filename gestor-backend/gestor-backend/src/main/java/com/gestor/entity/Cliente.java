@@ -1,63 +1,93 @@
 package com.gestor.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name="clientes")
+@Table(name = "cliente")
 public class Cliente {
-    @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long id;
 
-    @Column(nullable=false, length=120)
-    private String nombre;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_cliente")
+    private Long idCliente;
 
-    @Column(nullable=false, length=150)
-    private String apellidos;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario", nullable = false)
+    private Usuario usuario;
 
-    @Column(length=50)
-    private String telefono;
+    @Column(name = "nombre_completo", nullable = false, length = 150)
+    private String nombreCompleto;
 
-    @Column(length=255)
+    @Column(name = "direccion", columnDefinition = "TEXT")
     private String direccion;
 
-    @Column(length=100)
-    private String nis;
-
-    // ❌ eliminado: @Column(name="fecha_nacimiento") private LocalDate fechaNacimiento;
-
-    @Column(length=50)
+    @Column(name = "dpi", nullable = false, unique = true, length = 13)
     private String dpi;
 
-    @Column(length=50)
-    private String nit;
+    @Column(name = "fecha_nacimiento", nullable = false)
+    private LocalDate fechaNacimiento;
 
-    @Column(name="cuenta_bancaria", length=100)
-    private String cuentaBancaria;
+    @Column(name = "telefono", length = 8)
+    private String telefono;
 
-    @Column(name="pass_nit", length=120)
-    private String passNit;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name="pass_cgc", length=120)
-    private String passCgc;
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @Column(name="pass_reghae", length=120)
-    private String passReghae;
+    @Column(name = "created_by", length = 150)
+    private String createdBy;
 
-    @Column(name="pass_general", length=120)
-    private String passGeneral;
+    @Column(name = "updated_by", length = 150)
+    private String updatedBy;
 
-    // getters/setters
-    public Long getId(){ return id; } public void setId(Long id){ this.id = id; }
-    public String getNombre(){ return nombre; } public void setNombre(String v){ this.nombre = v; }
-    public String getApellidos(){ return apellidos; } public void setApellidos(String v){ this.apellidos = v; }
-    public String getTelefono(){ return telefono; } public void setTelefono(String v){ this.telefono = v; }
-    public String getDireccion(){ return direccion; } public void setDireccion(String v){ this.direccion = v; }
-    public String getNis(){ return nis; } public void setNis(String v){ this.nis = v; }
-    public String getDpi(){ return dpi; } public void setDpi(String v){ this.dpi = v; }
-    public String getNit(){ return nit; } public void setNit(String v){ this.nit = v; }
-    public String getCuentaBancaria(){ return cuentaBancaria; } public void setCuentaBancaria(String v){ this.cuentaBancaria = v; }
-    public String getPassNit(){ return passNit; } public void setPassNit(String v){ this.passNit = v; }
-    public String getPassCgc(){ return passCgc; } public void setPassCgc(String v){ this.passCgc = v; }
-    public String getPassReghae(){ return passReghae; } public void setPassReghae(String v){ this.passReghae = v; }
-    public String getPassGeneral(){ return passGeneral; } public void setPassGeneral(String v){ this.passGeneral = v; }
+    // Relación bidireccional con Datos
+    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Datos datos;
+
+    // Lifecycle callback
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // Getters y Setters
+    public Long getIdCliente() { return idCliente; }
+    public void setIdCliente(Long idCliente) { this.idCliente = idCliente; }
+
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+
+    public String getNombreCompleto() { return nombreCompleto; }
+    public void setNombreCompleto(String nombreCompleto) { this.nombreCompleto = nombreCompleto; }
+
+    public String getDireccion() { return direccion; }
+    public void setDireccion(String direccion) { this.direccion = direccion; }
+
+    public String getDpi() { return dpi; }
+    public void setDpi(String dpi) { this.dpi = dpi; }
+
+    public LocalDate getFechaNacimiento() { return fechaNacimiento; }
+    public void setFechaNacimiento(LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
+
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+
+    public String getUpdatedBy() { return updatedBy; }
+    public void setUpdatedBy(String updatedBy) { this.updatedBy = updatedBy; }
+
+    public Datos getDatos() { return datos; }
+    public void setDatos(Datos datos) { this.datos = datos; }
 }

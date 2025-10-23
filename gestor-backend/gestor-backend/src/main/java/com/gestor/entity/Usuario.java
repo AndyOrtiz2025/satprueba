@@ -2,23 +2,72 @@
 package com.gestor.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
-@Entity @Table(name="usuarios")
+@Entity
+@Table(name = "usuario")
 public class Usuario {
-    @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long id;
 
-    @Column(nullable=false, unique=true, length=150)
-    private String username;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_usuario")
+    private Long idUsuario;
 
-    @Column(name="password_hash", nullable=false, length=255)
-    private String passwordHash;
+    @Column(name = "usuario", nullable = false, unique = true, length = 150)
+    private String usuario;
 
-    // getters/setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getUsername() { return username; }
-    public void setUsername(String username){ this.username=username; }
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash){ this.passwordHash=passwordHash; }
+    @Column(name = "email", nullable = false, unique = true, length = 255)
+    private String email;
+
+    @Column(name = "password", nullable = false, columnDefinition = "TEXT")
+    private String password;
+
+    @Column(name = "estado", nullable = false, length = 20)
+    private String estado = "ACTIVO"; // ACTIVO, BLOQUEADO
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @Column(name = "created_by", length = 150)
+    private String createdBy;
+
+    @Column(name = "updated_by", length = 150)
+    private String updatedBy;
+
+    // Lifecycle callback para actualizar updated_at
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // Getters y Setters
+    public Long getIdUsuario() { return idUsuario; }
+    public void setIdUsuario(Long idUsuario) { this.idUsuario = idUsuario; }
+
+    public String getUsuario() { return usuario; }
+    public void setUsuario(String usuario) { this.usuario = usuario; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+
+    public String getUpdatedBy() { return updatedBy; }
+    public void setUpdatedBy(String updatedBy) { this.updatedBy = updatedBy; }
 }

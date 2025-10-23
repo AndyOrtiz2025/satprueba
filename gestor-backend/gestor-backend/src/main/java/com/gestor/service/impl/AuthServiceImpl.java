@@ -17,7 +17,7 @@ public class AuthServiceImpl implements AuthService {
     public String login(String username, String password) {
         // Login simple: si existe el usuario, devolvemos token dummy
         // (tu frontend sólo guarda el token; no validamos JWT aquí)
-        Usuario u = usuarioRepository.findByUsername(username).orElse(null);
+        Usuario u = usuarioRepository.findByUsuario(username).orElse(null);
         if(u == null) return null;
         return "dummy-token-" + username;
     }

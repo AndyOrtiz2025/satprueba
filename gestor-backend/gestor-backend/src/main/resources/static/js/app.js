@@ -93,11 +93,11 @@ if (document.body.dataset.page === "register") {
         modal.classList.add("show");
         $("#registered-ok")?.addEventListener("click", () => {
           modal.classList.remove("show");
-          go("login.html");
+          go("index.html");
         }, { once: true });
       } else {
         alert("Usuario registrado");
-        go("login.html");
+        go("index.html");
       }
     } catch (err) {
       console.error(err);

@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 @Service
 public class EstadoTramiteServiceImpl implements EstadoTramiteService {
 
-    private final EstadoTramiteRepository repo;
+    private final ConsultaTramiteRepository repo;
     private final TramiteRepository tramiteRepo;
     private final ClienteRepository clienteRepo;
 
-    public EstadoTramiteServiceImpl(EstadoTramiteRepository repo, TramiteRepository tramiteRepo, ClienteRepository clienteRepo){
+    public EstadoTramiteServiceImpl(ConsultaTramiteRepository repo, TramiteRepository tramiteRepo, ClienteRepository clienteRepo){
         this.repo = repo;
         this.tramiteRepo = tramiteRepo;
         this.clienteRepo = clienteRepo;
@@ -34,10 +34,10 @@ public class EstadoTramiteServiceImpl implements EstadoTramiteService {
         Cliente c = clienteRepo.findById(dto.getClienteId())
                 .orElseThrow(() -> new NotFoundException("Cliente no encontrado"));
         validarEstado(dto.getEstado());
-        EstadoTramite e = new EstadoTramite();
+        ConsultaTramite e = new ConsultaTramite();
         e.setTramite(t);
         e.setCliente(c);
-        e.setFechaInicio(dto.getFechaInicio()!=null ? dto.getFechaInicio() : LocalDate.now());
+        e.setFechaTramite(dto.getFechaInicio()!=null ? dto.getFechaInicio() : LocalDate.now());
         e.setEstado(dto.getEstado());
         e = repo.save(e);
         return EstadoTramiteMapper.toDTO(e);
@@ -45,7 +45,7 @@ public class EstadoTramiteServiceImpl implements EstadoTramiteService {
 
     @Override
     public EstadoTramiteDTO updateEstado(Long id, String nuevoEstado) {
-        EstadoTramite e = repo.findById(id).orElseThrow(() -> new NotFoundException("Estado de trámite no encontrado"));
+        ConsultaTramite e = repo.findById(id).orElseThrow(() -> new NotFoundException("Estado de trámite no encontrado"));
         validarEstado(nuevoEstado);
         e.setEstado(nuevoEstado);
         e = repo.save(e);
@@ -60,10 +60,9 @@ public class EstadoTramiteServiceImpl implements EstadoTramiteService {
     private void validarEstado(String estado){
         if(estado==null) throw new BadRequestException("Estado requerido");
         switch (estado){
+            case "INICIADO":
             case "PENDIENTE":
-            case "EN_PROCESO":
-            case "FINALIZADO":
-            case "RECHAZADO": break;
+            case "TERMINADO": break;
             default: throw new BadRequestException("Estado inválido");
         }
     }

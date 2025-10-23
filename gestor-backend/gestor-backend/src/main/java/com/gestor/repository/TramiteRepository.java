@@ -7,8 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TramiteRepository extends JpaRepository<Tramite, Long> {
     Page<Tramite> findByNombreContainingIgnoreCase(String q, Pageable p);
-
-    // repository/TramiteRepository.java
-long countByGrupo_Id(Long grupoId);
-
+    long countByTipoTramite_IdTipoTramite(Long idTipoTramite);
 }
