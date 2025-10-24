@@ -11,8 +11,8 @@
     <div class="profile">
       <div class="avatar"></div>
       <div>
-        <div style="font-weight:800">PAOLA RAMIREZ</div>
-        <div class="small">paola17@email.com</div>
+        <div style="font-weight:800" id="user-name">Usuario</div>
+        <div class="small" id="user-email">email@example.com</div>
       </div>
     </div>
     <nav class="nav">
@@ -24,7 +24,7 @@
       <a href="consulta-tramites.html">CONSULTA TRÁMITES</a>
       <a href="tipos-tramites.html">TIPOS DE TRÁMITES</a>
       <a class="active" href="notificaciones.html">NOTIFICACIONES</a>
-      <a href="#" class="small">Log out</a>
+      <a href="#" class="small" onclick="logout(event)">Log out</a>
     </nav>
   </aside>
 
@@ -32,8 +32,8 @@
     <div class="notifications-header">
       <h2 class="section-title">Centro de Notificaciones</h2>
       <div class="notifications-actions">
+        <button class="btn btn-outline" onclick="cargarNotificaciones()" title="Recargar notificaciones">🔄 Recargar</button>
         <button class="btn btn-outline" onclick="marcarTodasLeidas()">Marcar todas como leídas</button>
-        <button class="btn btn-outline" onclick="filtrarNotificaciones()">Filtrar</button>
       </div>
     </div>
 
@@ -72,25 +72,306 @@
 
   <script src="js/config.js"></script>
   <script src="js/api-service.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/app.js"></script>
   <script>
-    function marcarTodasLeidas() {
-      const unreadItems = document.querySelectorAll('.notification-item.unread');
-      unreadItems.forEach(item => item.classList.remove('unread'));
-      alert('Todas las notificaciones han sido marcadas como leídas');
-    }
+    // Estado de la aplicación
+    let todasLasNotificaciones = [];
+    let notificacionesFiltradas = [];
+    let filtroActual = 'todas';
+    let paginaActual = 0;
+    let tamanioPagina = 10;
+    let totalPaginas = 0;
+    let usuarioActual = null;
 
-    function filtrarNotificaciones() {
-      alert('Función de filtrado en desarrollo');
-    }
-
-    // Filtros de notificaciones
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-      });
+    // Inicializar al cargar la página
+    document.addEventListener('DOMContentLoaded', async function() {
+      usuarioActual = obtenerUsuarioActual();
+      if (!usuarioActual) {
+        alert('No hay sesión activa. Redirigiendo al login...');
+        window.location.href = 'index.html';
+        return;
+      }
+      await cargarNotificaciones();
     });
+
+    // Cargar notificaciones del backend
+    async function cargarNotificaciones() {
+      try {
+        mostrarCargando();
+        const idUsuario = usuarioActual.id || usuarioActual.idUsuario || 1;
+
+        console.log('🔍 Cargando notificaciones para usuario:', idUsuario);
+        console.log('📄 Página:', paginaActual, 'Tamaño:', tamanioPagina);
+
+        const response = await API.Notificaciones.obtenerPorUsuario(
+          idUsuario,
+          paginaActual,
+          tamanioPagina
+        );
+
+        console.log('📦 Respuesta completa del servidor:', response);
+        console.log('✅ response.ok:', response.ok);
+        console.log('📊 response.data:', response.data);
+
+        if (response.ok && response.data) {
+          todasLasNotificaciones = response.data.content || [];
+          totalPaginas = response.data.totalPages || 1;
+
+          console.log('📝 Total notificaciones cargadas:', todasLasNotificaciones.length);
+          console.log('📄 Total de páginas:', totalPaginas);
+
+          aplicarFiltro(filtroActual);
+          actualizarContadores();
+          actualizarPaginacion();
+        } else {
+          console.error('❌ Respuesta inválida:', response);
+          mostrarError('No se pudieron cargar las notificaciones');
+        }
+      } catch (error) {
+        console.error('❌ Error al cargar notificaciones:', error);
+        console.error('Detalles del error:', error.message);
+        mostrarError('Error al cargar las notificaciones: ' + error.message);
+      }
+    }
+
+    // Mostrar notificaciones
+    function renderizarNotificaciones(notificaciones) {
+      const lista = document.getElementById('notifications-list');
+
+      if (!notificaciones || notificaciones.length === 0) {
+        lista.innerHTML = `
+          <div style="text-align:center;padding:60px;color:#999;">
+            <div style="font-size:48px;margin-bottom:16px;">📭</div>
+            <p>No hay notificaciones para mostrar</p>
+          </div>
+        `;
+        return;
+      }
+
+      lista.innerHTML = notificaciones.map(n => crearNotificacionHTML(n)).join('');
+    }
+
+    // Crear HTML de una notificación
+    function crearNotificacionHTML(notif) {
+      const iconos = {
+        'INFO': '📘',
+        'ADVERTENCIA': '⚠️',
+        'ERROR': '❌',
+        'EXITO': '✅'
+      };
+
+      const clases = {
+        'INFO': 'info',
+        'ADVERTENCIA': 'warning',
+        'ERROR': 'error',
+        'EXITO': 'success'
+      };
+
+      const esNoLeida = !notif.leida;
+      const fechaFormateada = formatearFecha(notif.fecha);
+      const idNotif = notif.id || notif.idNotificacion; // Soportar ambos campos
+
+      return `
+        <div class="notification-item ${esNoLeida ? 'unread' : ''}" data-id="${idNotif}">
+          <div class="notification-icon ${clases[notif.tipo] || 'info'}">
+            ${iconos[notif.tipo] || '📌'}
+          </div>
+          <div class="notification-content">
+            <div class="notification-header-row">
+              <span class="notification-badge ${clases[notif.tipo] || 'info'}">${notif.tipo}</span>
+              <span class="notification-time">${fechaFormateada}</span>
+            </div>
+            <div class="notification-message">${notif.mensaje}</div>
+            <div class="notification-footer">
+              ${esNoLeida ? `
+                <button class="btn-link" onclick="marcarComoLeida(${idNotif})">
+                  Marcar como leída
+                </button>
+              ` : '<span style="color:#999;font-size:12px;">✓ Leída</span>'}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Formatear fecha
+    function formatearFecha(fecha) {
+      const date = new Date(fecha);
+      const ahora = new Date();
+      const diff = ahora - date;
+      const minutos = Math.floor(diff / 60000);
+      const horas = Math.floor(diff / 3600000);
+      const dias = Math.floor(diff / 86400000);
+
+      if (minutos < 1) return 'Justo ahora';
+      if (minutos < 60) return `Hace ${minutos} min`;
+      if (horas < 24) return `Hace ${horas}h`;
+      if (dias < 7) return `Hace ${dias} días`;
+
+      return date.toLocaleDateString('es-GT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    }
+
+    // Aplicar filtro
+    function aplicarFiltro(filtro) {
+      filtroActual = filtro;
+
+      if (filtro === 'todas') {
+        notificacionesFiltradas = [...todasLasNotificaciones];
+      } else if (filtro === 'sin-leer') {
+        notificacionesFiltradas = todasLasNotificaciones.filter(n => !n.leida);
+      } else if (filtro.startsWith('tipo-')) {
+        const tipo = filtro.replace('tipo-', '');
+        notificacionesFiltradas = todasLasNotificaciones.filter(n => n.tipo === tipo);
+      }
+
+      renderizarNotificaciones(notificacionesFiltradas);
+    }
+
+    // Función de filtrado por botón
+    function filtrarPor(filtro) {
+      aplicarFiltro(filtro);
+
+      // Actualizar botones activos
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.filter === filtro) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    // Actualizar contadores
+    function actualizarContadores() {
+      const total = todasLasNotificaciones.length;
+      const sinLeer = todasLasNotificaciones.filter(n => !n.leida).length;
+      const errores = todasLasNotificaciones.filter(n => n.tipo === 'ERROR').length;
+      const advertencias = todasLasNotificaciones.filter(n => n.tipo === 'ADVERTENCIA').length;
+
+      document.getElementById('count-todas').textContent = total;
+      document.getElementById('count-sin-leer').textContent = sinLeer;
+      document.getElementById('count-error').textContent = errores;
+      document.getElementById('count-advertencia').textContent = advertencias;
+    }
+
+    // Marcar una notificación como leída
+    async function marcarComoLeida(idNotificacion) {
+      try {
+        console.log('📝 Intentando marcar como leída la notificación:', idNotificacion);
+        const response = await API.Notificaciones.marcarComoLeida(idNotificacion);
+        console.log('📦 Respuesta de marcar como leída:', response);
+
+        if (response.ok) {
+          // Actualizar en el array local (soportar ambos formatos de ID)
+          const notif = todasLasNotificaciones.find(n =>
+            (n.id === idNotificacion) || (n.idNotificacion === idNotificacion)
+          );
+          if (notif) {
+            notif.leida = true;
+          }
+
+          aplicarFiltro(filtroActual);
+          actualizarContadores();
+          console.log('✅ Notificación marcada como leída exitosamente');
+        } else {
+          console.error('❌ Respuesta no exitosa:', response);
+          alert('Error: ' + (response.message || 'No se pudo marcar como leída'));
+        }
+      } catch (error) {
+        console.error('❌ Error al marcar como leída:', error);
+        console.error('Detalles completos del error:', error.message);
+        alert('Error al marcar la notificación como leída: ' + error.message);
+      }
+    }
+
+    // Marcar todas como leídas
+    async function marcarTodasLeidas() {
+      const noLeidas = todasLasNotificaciones.filter(n => !n.leida);
+
+      if (noLeidas.length === 0) {
+        alert('No hay notificaciones sin leer');
+        return;
+      }
+
+      if (!confirm(`¿Marcar ${noLeidas.length} notificaciones como leídas?`)) {
+        return;
+      }
+
+      try {
+        // Marcar todas secuencialmente
+        for (const notif of noLeidas) {
+          await API.Notificaciones.marcarComoLeida(notif.idNotificacion);
+          notif.leida = true;
+        }
+
+        aplicarFiltro(filtroActual);
+        actualizarContadores();
+        alert('Todas las notificaciones han sido marcadas como leídas');
+      } catch (error) {
+        console.error('Error al marcar todas como leídas:', error);
+        alert('Error al marcar las notificaciones como leídas');
+      }
+    }
+
+    // Paginación
+    function cambiarPagina(direccion) {
+      const nuevaPagina = paginaActual + direccion;
+
+      if (nuevaPagina < 0 || nuevaPagina >= totalPaginas) {
+        return;
+      }
+
+      paginaActual = nuevaPagina;
+      cargarNotificaciones();
+    }
+
+    function actualizarPaginacion() {
+      const controles = document.getElementById('pagination-controls');
+      const info = document.getElementById('pagination-info');
+      const btnPrev = document.getElementById('btn-prev-page');
+      const btnNext = document.getElementById('btn-next-page');
+
+      if (totalPaginas <= 1) {
+        controles.style.display = 'none';
+        return;
+      }
+
+      controles.style.display = 'flex';
+      info.textContent = `Página ${paginaActual + 1} de ${totalPaginas}`;
+      btnPrev.disabled = paginaActual === 0;
+      btnNext.disabled = paginaActual >= totalPaginas - 1;
+    }
+
+    // Función de filtrado avanzado (modal o dropdown)
+    function filtrarNotificaciones() {
+      // Mostrar modal o dropdown con opciones avanzadas
+      alert('Filtros avanzados: Puedes usar los botones de arriba para filtrar por tipo');
+    }
+
+    // Estados de carga
+    function mostrarCargando() {
+      document.getElementById('notifications-list').innerHTML = `
+        <div style="text-align:center;padding:60px;color:#999;">
+          <div style="font-size:48px;margin-bottom:16px;">⏳</div>
+          <p>Cargando notificaciones...</p>
+        </div>
+      `;
+    }
+
+    function mostrarError(mensaje) {
+      document.getElementById('notifications-list').innerHTML = `
+        <div style="text-align:center;padding:60px;color:#999;">
+          <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+          <p>${mensaje}</p>
+          <button class="btn" onclick="cargarNotificaciones()">Reintentar</button>
+        </div>
+      `;
+    }
+
   </script>
 </body>
 </html>

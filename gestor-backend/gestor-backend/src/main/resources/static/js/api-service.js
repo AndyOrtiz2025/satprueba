@@ -897,14 +897,31 @@ const NotificacionesService = {
       }
       throw new Error('Notificación no encontrada');
     } else {
+      console.log('🔄 Llamando a PUT /notificaciones/' + idNotificacion + '/marcar-leida');
       const response = await fetch(`${CONFIG.API_BASE_URL}/notificaciones/${idNotificacion}/marcar-leida`, {
-        method: 'PUT'
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+      console.log('📡 Status de respuesta:', response.status, response.statusText);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Error al marcar como leída');
+        let errorMsg = 'Error al marcar como leída';
+        try {
+          const error = await response.json();
+          console.error('❌ Error del servidor:', error);
+          errorMsg = error.message || errorMsg;
+        } catch (e) {
+          const textError = await response.text();
+          console.error('❌ Error (texto):', textError);
+          errorMsg = textError || errorMsg;
+        }
+        throw new Error(errorMsg);
       }
-      return await response.json();
+      const result = await response.json();
+      console.log('✅ Resultado exitoso:', result);
+      return result;
     }
   },
 
