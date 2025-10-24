@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestión de Datos Sensibles</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    /* Estilos específicos para datos sensibles */
+    .section-divider {
+      margin-top: 30px;
+      margin-bottom: 20px;
+      padding-top: 20px;
+      border-top: 2px solid #e0d4f7;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      color: #2a0056;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .section-icon {
+      font-size: 20px;
+    }
+
+    .password-field {
+      position: relative;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: #666;
+      padding: 5px;
+      user-select: none;
+    }
+
+    .password-toggle:hover {
+      color: #2a0056;
+    }
+
+    .info-box {
+      background: #f8f3ff;
+      border-left: 4px solid #5a0fb2;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .info-box strong {
+      color: #2a0056;
+    }
+
+    .select-cliente {
+      background: #fff;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      padding: 12px 15px;
+      font-size: 14px;
+      width: 100%;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .select-cliente:focus {
+      outline: none;
+      border-color: #5a0fb2;
+      box-shadow: 0 0 0 3px rgba(90, 15, 178, 0.1);
+    }
+  </style>
+</head>
+<body data-page="datos" class="page">
+  <aside class="sidebar">
+    <div class="profile">
+      <div class="avatar"></div>
+      <div>
+        <div style="font-weight:800">PAOLA RAMIREZ</div>
+        <div class="small">paola17@email.com</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="dashboard.html">INICIO</a>
+      <a href="clientes.html">AGREGAR CLIENTES</a>
+      <a href="listado-clientes.html">LISTADO DE CLIENTES</a>
+      <a class="active" href="datos.html">DATOS</a>
+      <a href="tramites.html">TRÁMITES</a>
+      <a href="consulta-tramites.html">CONSULTA TRÁMITES</a>
+      <a href="tipos-tramites.html">TIPOS DE TRÁMITES</a>
+      <a href="notificaciones.html">NOTIFICACIONES</a>
+      <a href="#" class="small">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h2 class="section-title">Gestión de Datos Sensibles</h2>
+
+    <div class="info-box">
+      <strong>🔐 Seguridad:</strong> Todas las contraseñas se encriptan automáticamente con AES-256 antes de guardarse. Solo el propietario puede ver sus datos.
+    </div>
+
+    <form id="datosForm" style="max-width: 900px;">
+      <!-- Selección de Cliente -->
+      <div class="form-col">
+        <label class="label">SELECCIONAR CLIENTE *</label>
+        <select id="selectCliente" name="idCliente" class="select-cliente" required>
+          <option value="">-- Cargando clientes... --</option>
+        </select>
+      </div>
+
+      <!-- INFORMACIÓN ADICIONAL -->
+      <div class="section-divider">
+        <div class="section-header">
+          <span class="section-icon">📋</span>
+          <span>INFORMACIÓN ADICIONAL</span>
+        </div>
+      </div>
+
+      <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 18px;">
+        <div class="form-col">
+          <label class="label">NIT</label>
+          <input name="nit" class="input" placeholder="Ej: 1234567-8" maxlength="15" />
+        </div>
+
+        <div class="form-col">
+          <label class="label">NIS</label>
+          <input name="nis" type="number" class="input" placeholder="Número entero" />
+        </div>
+
+        <div class="form-col">
+          <label class="label">EMAIL</label>
+          <input name="email" type="email" class="input" placeholder="correo@ejemplo.com" />
+        </div>
+
+        <div class="form-col">
+          <label class="label">DPI</label>
+          <input name="dpi" class="input" placeholder="13 dígitos" pattern="[0-9]{13}" maxlength="13" />
+        </div>
+
+        <div class="form-col" style="grid-column: 1 / -1;">
+          <label class="label">CUENTA BANCARIA</label>
+          <input name="cuentaBancaria" class="input" placeholder="Número de cuenta" maxlength="20" />
+        </div>
+      </div>
+
+      <!-- CONTRASEÑAS DE PLATAFORMAS -->
+      <div class="section-divider">
+        <div class="section-header">
+          <span class="section-icon">🔐</span>
+          <span>CONTRASEÑAS DE PLATAFORMAS</span>
+        </div>
+      </div>
+
+      <div style="display: grid; gap: 18px;">
+        <!-- Contraseña Agencia Virtual -->
+        <div class="form-col">
+          <label class="label">CONTRASEÑA AGENCIA VIRTUAL SAT</label>
+          <div class="password-field">
+            <input
+              name="contrasenaAgenciaVirtual"
+              type="password"
+              class="input password-input"
+              placeholder="Contraseña para portal.sat.gob.gt"
+            />
+            <button type="button" class="password-toggle" data-target="contrasenaAgenciaVirtual">👁️</button>
+          </div>
+        </div>
+
+        <!-- Contraseña Correo -->
+        <div class="form-col">
+          <label class="label">CONTRASEÑA CORREO ELECTRÓNICO</label>
+          <div class="password-field">
+            <input
+              name="contrasenaCorreo"
+              type="password"
+              class="input password-input"
+              placeholder="Contraseña del correo del cliente"
+            />
+            <button type="button" class="password-toggle" data-target="contrasenaCorreo">👁️</button>
+          </div>
+        </div>
+
+        <!-- Contraseña CGC -->
+        <div class="form-col">
+          <label class="label">CONTRASEÑA CGC (CONTRALORÍA)</label>
+          <div class="password-field">
+            <input
+              name="contrasenaCgc"
+              type="password"
+              class="input password-input"
+              placeholder="Contraseña para sicoin.minfin.gob.gt"
+            />
+            <button type="button" class="password-toggle" data-target="contrasenaCgc">👁️</button>
+          </div>
+        </div>
+
+        <!-- Contraseña Consulta General -->
+        <div class="form-col">
+          <label class="label">CONTRASEÑA CONSULTA GENERAL</label>
+          <div class="password-field">
+            <input
+              name="contrasenaConsultaGeneral"
+              type="password"
+              class="input password-input"
+              placeholder="Contraseña para consultas de trámites"
+            />
+            <button type="button" class="password-toggle" data-target="contrasenaConsultaGeneral">👁️</button>
+          </div>
+        </div>
+
+        <!-- Contraseña REGAHE -->
+        <div class="form-col">
+          <label class="label">CONTRASEÑA REGAHE</label>
+          <div class="password-field">
+            <input
+              name="contrasenaRegahe"
+              type="password"
+              class="input password-input"
+              placeholder="Contraseña para sistema REGAHE"
+            />
+            <button type="button" class="password-toggle" data-target="contrasenaRegahe">👁️</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-actions" style="margin-top: 30px;">
+        <button type="submit" class="btn btn-navy">🔐 GUARDAR DATOS SENSIBLES</button>
+      </div>
+    </form>
+  </main>
+
+  <!-- Modal Éxito -->
+  <div class="modal" id="modal-datos-ok">
+    <div class="modal-content">
+      <h3>✅ Datos Guardados</h3>
+      <p>Los datos sensibles se han guardado y encriptado correctamente.</p>
+      <button class="btn btn-navy" id="datos-ok" data-close>Aceptar</button>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api-service.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

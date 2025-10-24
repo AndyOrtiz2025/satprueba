@@ -13,8 +13,8 @@ public class Archivos {
     @Column(name = "id_archivos")
     private Long idArchivos;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_tramites", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tramites")
     private Tramite tramite;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

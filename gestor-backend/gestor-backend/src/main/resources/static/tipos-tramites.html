@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tipos de Trámites</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .tipos-table-container {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .tipos-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .tipos-table thead {
+      background: linear-gradient(135deg, #2a0056 0%, #5a0fb2 100%);
+      color: white;
+    }
+
+    .tipos-table th {
+      padding: 16px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tipos-table tbody tr {
+      border-bottom: 1px solid #e0e0e0;
+      transition: background-color 0.2s;
+    }
+
+    .tipos-table tbody tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .tipos-table td {
+      padding: 16px;
+      color: #333;
+    }
+
+    .tipo-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-sat { background: #e3f2fd; color: #1976d2; }
+    .badge-cgc { background: #f3e5f5; color: #7b1fa2; }
+    .badge-rae { background: #e8f5e9; color: #388e3c; }
+    .badge-renas { background: #fff3e0; color: #f57c00; }
+    .badge-otro { background: #f5f5f5; color: #616161; }
+
+    .link-cell {
+      max-width: 300px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .link-cell a {
+      color: #5a0fb2;
+      text-decoration: none;
+    }
+
+    .link-cell a:hover {
+      text-decoration: underline;
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-icon:hover {
+      background-color: #f0f0f0;
+    }
+
+    .btn-edit { color: #1976d2; }
+    .btn-delete { color: #d32f2f; }
+
+    .no-data {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .modal-content {
+      max-width: 500px;
+    }
+  </style>
+</head>
+<body data-page="tipos-tramites" class="page">
+  <aside class="sidebar">
+    <div class="profile">
+      <div class="avatar"></div>
+      <div>
+        <div style="font-weight:800">PAOLA RAMIREZ</div>
+        <div class="small">paola17@email.com</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="dashboard.html">INICIO</a>
+      <a href="clientes.html">AGREGAR CLIENTES</a>
+      <a href="listado-clientes.html">LISTADO DE CLIENTES</a>
+      <a href="datos.html">DATOS</a>
+      <a href="tramites.html">TRÁMITES</a>
+      <a href="consulta-tramites.html">CONSULTA TRÁMITES</a>
+      <a class="active" href="tipos-tramites.html">TIPOS DE TRÁMITES</a>
+      <a href="notificaciones.html">NOTIFICACIONES</a>
+      <a href="#" class="small">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <h2 class="section-title">📚 Catálogo de Tipos de Trámites</h2>
+      <button class="btn btn-primary" onclick="abrirModalNuevoTipo()">➕ Agregar Nuevo Tipo</button>
+    </div>
+
+    <!-- Tabla de Tipos de Trámites -->
+    <div class="tipos-table-container">
+      <div id="tipos-list">
+
+        <!-- Los tipos se cargarán dinámicamente aquí -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal para agregar/editar tipo -->
+  <div class="modal" id="modal-tipo">
+    <div class="modal-content">
+      <h3 id="modal-title" style="color:#2a0056;">Agregar Nuevo Tipo de Trámite</h3>
+      <form id="form-tipo" style="text-align: left; margin-top: 20px;">
+        <div class="form-col">
+          <label class="label">CATEGORÍA/PORTAL *</label>
+          <input name="portal" id="input-portal" class="input" placeholder="Ej: SAT, CGC, RENAP, IGSS" maxlength="20" required style="color:#1a1a1a;">
+          <small style="color:#666;font-size:12px;display:block;margin-top:4px;">Nombre de la categoría o portal del trámite</small>
+        </div>
+        <div class="form-col">
+          <label class="label">ENLACE (OPCIONAL)</label>
+          <input name="link" id="input-link" class="input" placeholder="https://..." type="url" style="color:#1a1a1a;">
+          <small style="color:#666;font-size:12px;display:block;margin-top:4px;">URL del portal o información relacionada</small>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 24px;">
+          <button type="submit" class="btn btn-navy" style="flex: 1;">💾 Guardar</button>
+          <button type="button" class="btn btn-outline" onclick="cerrarModalTipo()" style="flex: 1;">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api-service.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

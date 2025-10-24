@@ -33,7 +33,12 @@ public class AuthController {
   public ResponseEntity<?> login(@RequestBody AuthRequestDTO req){
     Usuario u = repo.findByUsuario(req.username()).orElse(null);
     if (u != null && PasswordUtil.matches(req.password(), u.getPassword())) {
-      return ResponseEntity.ok(new AuthResponseDTO("dummy-token"));
+      return ResponseEntity.ok(Map.of(
+          "token", "dummy-token",
+          "idUsuario", u.getIdUsuario(),
+          "usuario", u.getUsuario(),
+          "email", u.getEmail()
+      ));
     }
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(Map.of("error","Credenciales inválidas"));

@@ -93,14 +93,33 @@ public class ClienteMapper {
 
     public static void merge(ClienteDTO d, Cliente e){
         if (d==null || e==null) return;
-        e.setNombreCompleto(nullIfBlank(d.getNombreCompleto()));
-        e.setTelefono(nullIfBlank(d.getTelefono()));
-        e.setDireccion(nullIfBlank(d.getDireccion()));
-        e.setDpi(nullIfBlank(d.getDpi()));
-        e.setFechaNacimiento(d.getFechaNacimiento());
 
-        // Actualizar datos sensibles
-        if(e.getDatos() != null) {
+        // Actualizar SOLO los datos básicos del cliente
+        if(d.getNombreCompleto() != null) {
+            e.setNombreCompleto(nullIfBlank(d.getNombreCompleto()));
+        }
+        if(d.getTelefono() != null) {
+            e.setTelefono(nullIfBlank(d.getTelefono()));
+        }
+        if(d.getDireccion() != null) {
+            e.setDireccion(nullIfBlank(d.getDireccion()));
+        }
+        if(d.getDpi() != null) {
+            e.setDpi(nullIfBlank(d.getDpi()));
+        }
+        if(d.getFechaNacimiento() != null) {
+            e.setFechaNacimiento(d.getFechaNacimiento());
+        }
+
+        // SOLO actualizar datos sensibles si al menos uno viene en el DTO
+        // Esto evita borrar datos sensibles cuando solo se actualizan datos básicos
+        boolean tieneAlgunDatoSensible = d.getNis() != null || d.getNit() != null ||
+                                         d.getEmail() != null || d.getCuentaBancaria() != null ||
+                                         d.getPassAgenciaVirtual() != null || d.getPassCorreo() != null ||
+                                         d.getPassCgc() != null || d.getPassConsultaGeneral() != null ||
+                                         d.getPassReghae() != null;
+
+        if(e.getDatos() != null && tieneAlgunDatoSensible) {
             Datos datos = e.getDatos();
             if(d.getNis() != null && !d.getNis().isBlank()) {
                 try {
@@ -109,14 +128,14 @@ public class ClienteMapper {
                     // Ignorar si no es un número válido
                 }
             }
-            datos.setNit(nullIfBlank(d.getNit()));
-            datos.setEmail(nullIfBlank(d.getEmail()));
-            datos.setCuentaBancaria(nullIfBlank(d.getCuentaBancaria()));
-            datos.setContrasenaAgenciaVirtual(nullIfBlank(d.getPassAgenciaVirtual()));
-            datos.setContrasenaCorreo(nullIfBlank(d.getPassCorreo()));
-            datos.setContrasenaCgc(nullIfBlank(d.getPassCgc()));
-            datos.setContrasenaConsultaGeneral(nullIfBlank(d.getPassConsultaGeneral()));
-            datos.setContrasenaRegahe(nullIfBlank(d.getPassReghae()));
+            if(d.getNit() != null) datos.setNit(nullIfBlank(d.getNit()));
+            if(d.getEmail() != null) datos.setEmail(nullIfBlank(d.getEmail()));
+            if(d.getCuentaBancaria() != null) datos.setCuentaBancaria(nullIfBlank(d.getCuentaBancaria()));
+            if(d.getPassAgenciaVirtual() != null) datos.setContrasenaAgenciaVirtual(nullIfBlank(d.getPassAgenciaVirtual()));
+            if(d.getPassCorreo() != null) datos.setContrasenaCorreo(nullIfBlank(d.getPassCorreo()));
+            if(d.getPassCgc() != null) datos.setContrasenaCgc(nullIfBlank(d.getPassCgc()));
+            if(d.getPassConsultaGeneral() != null) datos.setContrasenaConsultaGeneral(nullIfBlank(d.getPassConsultaGeneral()));
+            if(d.getPassReghae() != null) datos.setContrasenaRegahe(nullIfBlank(d.getPassReghae()));
         }
     }
 

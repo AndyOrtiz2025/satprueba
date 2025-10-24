@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notificaciones</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="notificaciones" class="page">
+  <aside class="sidebar">
+    <div class="profile">
+      <div class="avatar"></div>
+      <div>
+        <div style="font-weight:800">PAOLA RAMIREZ</div>
+        <div class="small">paola17@email.com</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="dashboard.html">INICIO</a>
+      <a href="clientes.html">AGREGAR CLIENTES</a>
+      <a href="listado-clientes.html">LISTADO DE CLIENTES</a>
+      <a href="datos.html">DATOS</a>
+      <a href="tramites.html">TRÁMITES</a>
+      <a href="consulta-tramites.html">CONSULTA TRÁMITES</a>
+      <a href="tipos-tramites.html">TIPOS DE TRÁMITES</a>
+      <a class="active" href="notificaciones.html">NOTIFICACIONES</a>
+      <a href="#" class="small">Log out</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="notifications-header">
+      <h2 class="section-title">Centro de Notificaciones</h2>
+      <div class="notifications-actions">
+        <button class="btn btn-outline" onclick="marcarTodasLeidas()">Marcar todas como leídas</button>
+        <button class="btn btn-outline" onclick="filtrarNotificaciones()">Filtrar</button>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="notification-filters">
+      <button class="filter-btn active" data-filter="todas" onclick="filtrarPor('todas')">
+        Todas (<span id="count-todas">0</span>)
+      </button>
+      <button class="filter-btn" data-filter="sin-leer" onclick="filtrarPor('sin-leer')">
+        Sin leer (<span id="count-sin-leer">0</span>)
+      </button>
+      <button class="filter-btn" data-filter="tipo-ERROR" onclick="filtrarPor('tipo-ERROR')">
+        Errores (<span id="count-error">0</span>)
+      </button>
+      <button class="filter-btn" data-filter="tipo-ADVERTENCIA" onclick="filtrarPor('tipo-ADVERTENCIA')">
+        Advertencias (<span id="count-advertencia">0</span>)
+      </button>
+    </div>
+
+    <!-- Lista de Notificaciones -->
+    <div class="notifications-list" id="notifications-list">
+      <div style="text-align:center;padding:60px;color:#999;">
+        <div style="font-size:48px;margin-bottom:16px;">⏳</div>
+        <p>Cargando notificaciones...</p>
+      </div>
+    </div>
+
+    <!-- Paginación -->
+    <div class="pagination" id="pagination-controls" style="display:none;">
+      <button class="btn btn-outline" id="btn-prev-page" onclick="cambiarPagina(-1)">Anterior</button>
+      <span class="pagination-info" id="pagination-info">Página 1 de 1</span>
+      <button class="btn btn-outline" id="btn-next-page" onclick="cambiarPagina(1)">Siguiente</button>
+    </div>
+
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/api-service.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function marcarTodasLeidas() {
+      const unreadItems = document.querySelectorAll('.notification-item.unread');
+      unreadItems.forEach(item => item.classList.remove('unread'));
+      alert('Todas las notificaciones han sido marcadas como leídas');
+    }
+
+    function filtrarNotificaciones() {
+      alert('Función de filtrado en desarrollo');
+    }
+
+    // Filtros de notificaciones
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
